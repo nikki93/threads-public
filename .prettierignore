@@ -1,0 +1,4 @@
+dist/
+activity.jsonl
+package-lock.json
+threads/

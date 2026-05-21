@@ -1,0 +1,6 @@
+node_modules/
+dist/
+activity.jsonl
+server-reload.trigger
+*.log
+.codex/

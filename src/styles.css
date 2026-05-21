@@ -1,0 +1,1019 @@
+:root {
+  --bg: #282a36;
+  --fg: #f8f8f2;
+  --muted: #6272a4;
+  --panel: #21222c;
+  --border: #44475a;
+  --accent: #bd93f9;
+  --running: #f1fa8c;
+  --green: #50fa7b;
+  --cyan: #8be9fd;
+  --red: #ff5555;
+  --orange: #ffb86c;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --app-font-size: 12px;
+  /* matches xterm's effective line spacing at lineHeight:1.2 (font-metric
+     based, includes ascent + descent + leading), so sidebar / note pane /
+     terminal share a vertical rhythm. */
+  --app-line-height: 1.5;
+  /* dynamic viewport height. `100dvh` handles ios safari's collapsing
+     address bar; the App effect overrides this with `visualViewport.height`
+     so the on-screen keyboard also shortens the app. */
+  --app-h: 100dvh;
+  font-family: var(--mono);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: var(--app-h);
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-size: var(--app-font-size);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: var(--app-line-height);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+input,
+textarea,
+button {
+  outline: none;
+}
+
+/* Shared Controls */
+
+.icon-btn {
+  align-items: center;
+  border-radius: 3px;
+  color: var(--muted);
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--fg);
+}
+
+.icon-btn:disabled {
+  cursor: default;
+  opacity: 0.25;
+}
+
+.icon-btn.on {
+  background: rgba(189, 147, 249, 0.1);
+  color: var(--accent);
+}
+
+.menu-wrap {
+  position: relative;
+}
+
+.menu {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  margin-top: 6px;
+  min-width: 190px;
+  padding: 4px;
+  position: absolute;
+  top: 100%;
+  z-index: 30;
+}
+
+.menu-right {
+  right: 0;
+}
+
+.menu-item {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  color: var(--fg);
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  padding: 7px 9px;
+  text-align: left;
+  text-transform: lowercase;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.menu-item-toggle {
+  color: var(--muted);
+  font-size: 14px;
+  margin-left: auto;
+}
+
+.menu-item-toggle[data-on='true'] {
+  color: var(--accent);
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  border-top-color: var(--running);
+  flex-shrink: 0;
+  height: 10px;
+  width: 10px;
+}
+
+.progress-pie {
+  background: conic-gradient(var(--accent) calc(var(--progress, 0) * 1%), var(--border) 0);
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 10px;
+  width: 10px;
+}
+
+.notify-dot {
+  background: var(--red);
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 6px;
+  width: 6px;
+}
+
+.needs-review-dot {
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 10px;
+  width: 10px;
+}
+
+.reload-icon {
+  color: var(--cyan);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* App Layout */
+
+.app {
+  display: grid;
+  height: var(--app-h);
+  min-width: 0;
+}
+
+.app.layout-split,
+.app.layout-preview {
+  grid-template-columns: 16.66% 1fr 1fr;
+}
+
+.app.layout-split .middle-stack {
+  display: contents;
+}
+
+.app.layout-preview .middle-stack {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.app.layout-preview .middle-stack > * {
+  flex: 1;
+  min-height: 0;
+}
+
+.app.layout-preview .middle-stack > * + * {
+  border-left: none;
+  border-top: 1px solid var(--border);
+}
+
+/* Sidebar */
+
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-toolbar {
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+}
+
+.sidebar-toolbar-spacer {
+  flex: 1;
+}
+
+.sidebar-search-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--fg);
+  flex: 1;
+  font-family: var(--mono);
+  font-size: var(--app-font-size);
+  height: 28px;
+  min-width: 0;
+  padding: 0 7px;
+}
+
+.sidebar-search-input::placeholder {
+  color: var(--muted);
+}
+
+.sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 7px 0 4px;
+}
+
+.sidebar-node {
+  min-width: 0;
+}
+
+.sidebar-children {
+  margin-left: 16px;
+}
+
+.row-shell {
+  align-items: center;
+  display: flex;
+  min-width: 0;
+}
+
+.row-shell:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.row-shell.selected {
+  background: rgba(189, 147, 249, 0.08);
+}
+
+.row-shell.search-highlight {
+  background: rgba(189, 147, 249, 0.22);
+}
+
+.row-shell.archived {
+  opacity: 0.45;
+}
+
+.row-disclosure {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  flex: 0 0 22px;
+  font-size: 8px;
+  height: 28px;
+  justify-content: center;
+}
+
+.row-disclosure.leaf {
+  font-size: 4px;
+  opacity: 0.65;
+}
+
+.row {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  line-height: 1.25;
+  min-width: 0;
+  padding: 7px 12px 7px 0;
+  text-align: left;
+  width: auto;
+}
+
+.row-title {
+  color: var(--fg);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* hover-only `+` sits in normal flow before the indicators slot, so when
+ * there's an indicator the + appears to its left; when there's none the +
+ * is the rightmost element. visibility (not display) keeps the slot
+ * reserved so the indicator's x-position doesn't shift on hover. */
+.row-plus {
+  align-items: center;
+  border-radius: 3px;
+  color: var(--muted);
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 16px;
+  justify-content: center;
+  visibility: hidden;
+  width: 16px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .row-shell:hover .row-plus {
+    visibility: visible;
+  }
+}
+
+/* on touch devices `:hover` is sticky -- a hover-dependent visibility flip
+   on `.row-plus` makes the first tap "show hover" and the second tap fire
+   the click, producing the well-known mobile double-tap-to-select bug.
+   gate the hover rule on real hover-capable pointers and keep `.row-plus`
+   permanently visible elsewhere. */
+@media (hover: none), (pointer: coarse) {
+  .row-plus {
+    visibility: visible;
+  }
+}
+
+/* when + is the rightmost element (no indicator), nudge it right by the
+ * difference between the icon-btn's centered glyph and the row's right
+ * padding so the + lines up where the indicator would have been. */
+.row-plus:last-child {
+  margin-right: -3px;
+}
+
+.row-plus:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--fg);
+}
+
+/* convo rows in the sidebar live as direct children under their thread.
+ * purple hashtag icon visually distinct from thread rows; title uses the
+ * default sidebar text color. always-leaf — convos themselves do not nest. */
+.convo-node .convo-bullet {
+  color: var(--accent);
+  font-size: 10px;
+}
+
+.convo-row.selected {
+  background: rgba(189, 147, 249, 0.12);
+}
+
+/* `+convo` menu trigger lives inline on a thread row's hover-+ slot to the
+ * left of the existing `+subthread` button. menu is portal'd to document.body
+ * and fixed-positioned so the sidebar's overflow:hidden doesn't clip it. */
+.row-plus-convo {
+  color: var(--muted);
+}
+
+.row-plus-convo:hover,
+.row-plus-convo.is-open {
+  color: var(--accent);
+}
+
+/* keep the trigger visible while its menu is open even if the cursor has
+ * left the row-shell hover area. */
+.row-plus.is-open {
+  visibility: visible;
+}
+
+.sidebar-spawn-menu {
+  margin-top: 0;
+  position: fixed;
+  z-index: 1000;
+}
+
+/* close x on a convo row reuses the row-plus hover-only slot positioning;
+ * keeps the row layout consistent with thread rows. */
+.row-close {
+  color: var(--muted);
+}
+
+.row-close:hover {
+  background: rgba(255, 85, 85, 0.12);
+  color: var(--red);
+}
+
+.row-indicators {
+  align-items: center;
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 6px;
+}
+
+/* Note Pane */
+
+.middle {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.middle-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.bubble {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 22px 28px 0 27px;
+}
+
+.note-actions {
+  align-items: center;
+  display: flex;
+  gap: 2px;
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  z-index: 2;
+}
+
+.note-save-error {
+  color: var(--red);
+  font-size: 12px;
+  padding-right: 6px;
+  white-space: nowrap;
+}
+
+.note-editor {
+  background: transparent;
+  color: var(--fg);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  width: min(100%, 90ch);
+}
+
+.note-editor .cm-editor {
+  background: transparent;
+  color: var(--fg);
+  flex: 1;
+  min-height: 0;
+}
+
+.note-editor .cm-scroller {
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.note-editor .cm-scroller::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+}
+
+.note-editor .cm-content {
+  padding-bottom: 28px;
+}
+
+.note-editor .cm-focused {
+  outline: none;
+}
+
+.note-editor::placeholder {
+  color: rgba(98, 114, 164, 0.65);
+}
+
+.ancestor-section {
+  flex-shrink: 0;
+  margin-bottom: 14px;
+  min-height: 18px;
+}
+
+.ancestor-toggle {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: inherit;
+}
+
+.ancestor-toggle:disabled {
+  cursor: default;
+}
+
+.ancestor-toggle:hover {
+  color: var(--fg);
+}
+
+.ancestor-toggle:disabled:hover {
+  color: var(--muted);
+}
+
+.ancestor-path {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ancestor-sep {
+  opacity: 0.5;
+}
+
+.ancestor-expanded {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ancestor-card {
+  border-left: 2px solid var(--border);
+  color: var(--muted);
+  font-size: inherit;
+  line-height: 1.35;
+  padding: 8px 12px;
+}
+
+.ancestor-card-title {
+  color: var(--fg);
+  margin-bottom: 3px;
+}
+
+.ancestor-card-snippet {
+  display: -webkit-box;
+  overflow: hidden;
+  white-space: pre-wrap;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Terminal Pane */
+
+.convo-pane {
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.empty-terminal {
+  color: var(--muted);
+}
+
+.terminal-empty-overlay {
+  align-items: center;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  inset: 0;
+  justify-content: center;
+  padding: 28px;
+  position: absolute;
+  z-index: 1;
+}
+
+.latest-blurb {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+  max-width: 46ch;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+.terminal-error {
+  color: var(--red);
+  font-size: 12px;
+  line-height: 1.55;
+  max-width: 46ch;
+  text-align: center;
+}
+
+.xterm-stack {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.xterm-host {
+  background: #282a36;
+  inset: 0;
+  overscroll-behavior: contain;
+  overflow: hidden;
+  padding: 16px 0 0 16px;
+  position: absolute;
+}
+
+.xterm-host.is-hidden {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.xterm-status {
+  background: rgba(40, 42, 54, 0.92);
+  border: 1px solid #44475a;
+  bottom: 12px;
+  color: #f1fa8c;
+  font-family: var(--mono);
+  font-size: 12px;
+  left: 12px;
+  padding: 4px 8px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 3;
+}
+
+.xterm-frame {
+  background: #282a36;
+  height: 100%;
+  min-height: 0;
+  overscroll-behavior: contain;
+  width: 100%;
+}
+
+.xterm-host.is-hidden .xterm-frame {
+  visibility: hidden;
+}
+
+.xterm-frame .xterm,
+.xterm-frame .xterm-helpers,
+.xterm-frame .xterm-screen,
+.xterm-frame .xterm-viewport {
+  background: #282a36 !important;
+}
+
+.xterm-frame .xterm {
+  height: 100%;
+  max-width: 100%;
+  overscroll-behavior: contain;
+  overflow: hidden;
+  width: 100%;
+}
+
+.xterm-frame .xterm-viewport {
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.xterm-frame .xterm-viewport::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+}
+
+.xterm-frame .xterm .xterm-scrollable-element > .scrollbar,
+.xterm-frame .xterm .xterm-scrollable-element > .scrollbar.visible,
+.xterm-frame .xterm .xterm-scrollable-element > .visible.scrollbar,
+.xterm-frame .xterm .xterm-scrollable-element > .invisible.scrollbar,
+.xterm-frame .xterm .xterm-scrollable-element > .xterm-scrollbar {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+}
+
+.xterm-frame .xterm .xterm-scrollable-element > .scrollbar > .slider,
+.xterm-frame .xterm .xterm-scrollable-element > .scrollbar > .scra,
+.xterm-frame .xterm .xterm-scrollable-element > .xterm-scrollbar > .xterm-slider {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+
+.xterm-frame .xterm .xterm-scrollable-element > .shadow {
+  display: none !important;
+}
+
+.terminal-special-keys {
+  display: none;
+}
+
+/* Preview Pane */
+
+.preview-pane {
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+}
+
+.preview-close {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  z-index: 2;
+}
+
+.preview-iframe {
+  background: var(--bg);
+  border: none;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.preview-loading {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  flex: 1;
+  font-size: 12px;
+  justify-content: center;
+}
+
+/* Pane Error Boundary */
+
+.pane-error {
+  align-items: flex-start;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  gap: 8px;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  padding: 16px;
+}
+
+.pane-error-title {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.pane-error-message {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: #f8f8f2;
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 100%;
+  overflow: auto;
+  padding: 8px 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.pane-error-reset {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  padding: 4px 10px;
+}
+
+.pane-error-reset:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Mobile Top Tabs */
+
+.mobile-top-tabs {
+  display: none;
+}
+
+.mobile-pane-header {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-top-tabs {
+    align-items: stretch;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    height: 40px;
+  }
+
+  .mobile-top-tab {
+    align-items: center;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .mobile-top-tab:last-child {
+    border-right: none;
+  }
+
+  .mobile-top-tab.is-active {
+    color: var(--fg);
+    background: var(--bg);
+  }
+
+  /* single-pane layout: panes overlay the content area and toggle via
+     visibility, never display:none. xterm's char-cell strut and the
+     fit-addon both measure 0 when their host is in a display:none
+     subtree, which locks term.cols/rows at 80x24 and never recovers --
+     so .middle-stack and .convo-pane must stay in a real layout box at
+     all times. */
+  .app.layout-split,
+  .app.layout-preview {
+    display: block;
+    grid-template-columns: none;
+    height: calc(var(--app-h) - 40px);
+    min-height: 0;
+    position: relative;
+  }
+
+  /* sidebar + preview only need to appear on their tab; safe to display:none */
+  .app.layout-split .sidebar,
+  .app.layout-preview .sidebar,
+  .app.layout-split .preview-pane,
+  .app.layout-preview .preview-pane {
+    display: none;
+  }
+
+  /* middle-stack always rendered, overlaying the content area; visible only
+     on note/terminal tabs */
+  .app.layout-split .middle-stack,
+  .app.layout-preview .middle-stack {
+    display: block;
+    inset: 0;
+    position: absolute;
+    visibility: hidden;
+  }
+
+  /* .middle and .convo-pane both overlay middle-stack; visibility toggles
+     which one paints. layout boxes stay alive in either case so xterm
+     measurement keeps working even when the terminal tab is inactive. */
+  .app.layout-split .middle,
+  .app.layout-preview .middle {
+    display: flex;
+    inset: 0;
+    position: absolute;
+    visibility: hidden;
+  }
+
+  .app.layout-split .convo-pane,
+  .app.layout-preview .convo-pane {
+    border-left: none;
+    display: flex;
+    inset: 0;
+    position: absolute;
+    visibility: hidden;
+  }
+
+  /* sidebar tab */
+  .app.layout-split[data-mobile-pane='sidebar'] .sidebar,
+  .app.layout-preview[data-mobile-pane='sidebar'] .sidebar {
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* note tab */
+  .app.layout-split[data-mobile-pane='note'] .middle-stack,
+  .app.layout-preview[data-mobile-pane='note'] .middle-stack {
+    visibility: visible;
+  }
+  .app.layout-split[data-mobile-pane='note'] .middle,
+  .app.layout-preview[data-mobile-pane='note'] .middle {
+    visibility: visible;
+  }
+
+  /* terminal tab */
+  .app.layout-split[data-mobile-pane='terminal'] .middle-stack,
+  .app.layout-preview[data-mobile-pane='terminal'] .middle-stack {
+    visibility: visible;
+  }
+  .app.layout-split[data-mobile-pane='terminal'] .convo-pane,
+  .app.layout-preview[data-mobile-pane='terminal'] .convo-pane {
+    visibility: visible;
+  }
+
+  .xterm-host.has-special-keys {
+    --terminal-special-keys-height: calc(57px + env(safe-area-inset-bottom));
+  }
+
+  .xterm-host.has-special-keys .xterm-frame {
+    height: calc(100% - var(--terminal-special-keys-height, 42px));
+  }
+
+  .xterm-host.has-special-keys .xterm-status {
+    bottom: calc(12px + var(--terminal-special-keys-height, 42px));
+  }
+
+  .terminal-special-keys {
+    align-items: center;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    bottom: 0;
+    display: grid;
+    gap: 4px;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    height: var(--terminal-special-keys-height, 42px);
+    left: 0;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    position: absolute;
+    right: 0;
+    z-index: 4;
+  }
+
+  .terminal-special-key {
+    align-items: center;
+    background: #282a36;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--fg);
+    display: flex;
+    height: 45px;
+    justify-content: center;
+    min-width: 0;
+    touch-action: manipulation;
+    user-select: none;
+  }
+
+  .terminal-special-key.is-active {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* per-pane header so the user always knows which thread / convo they're
+     looking at without needing to flip back to the sidebar tab. */
+  .mobile-pane-header {
+    align-items: center;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    display: flex;
+    flex: 0 0 auto;
+    font-family: var(--mono);
+    font-size: var(--app-font-size);
+    gap: 4px;
+    min-height: 28px;
+    overflow: hidden;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+
+  /* path-prefix segments stay muted; the final entity name is the focus
+     and renders in the standard fg color. */
+  .mobile-pane-header-thread {
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-pane-header-convo {
+    color: var(--fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
